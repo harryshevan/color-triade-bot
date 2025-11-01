@@ -205,9 +205,21 @@ async function start() {
     // Start web app server first
     await startWebApp();
     
+    // Remove any existing menu button (set to default)
+    try {
+      await bot.api.setChatMenuButton({
+        menu_button: { type: 'default' }
+      });
+      logger.info('Menu button reset to default (removed)');
+    } catch (error) {
+      logger.warn({ 
+        error: error instanceof Error ? error.message : String(error)
+      }, 'Failed to reset menu button (non-critical)');
+    }
+    
     // Note: Menu button is NOT used because it doesn't support sendData()
     // Web Apps must be launched via keyboard button for sendData() to work
-    // Users need to use /pick command to get the keyboard button
+    // Users get the keyboard button automatically on /start
     
     // Then start the bot
     logger.info('Starting bot...');
