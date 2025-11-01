@@ -1,5 +1,9 @@
 import express, { Express } from "express";
 import { config } from "./config";
+import { createLogger, logError } from "./logger";
+
+// Initialize logger for this module
+const logger = createLogger('webapp');
 
 // Create Express app for serving the color picker web app
 const app: Express = express();
@@ -12,14 +16,21 @@ app.use(express.json());
 app.post("/send-color", async (req, res) => {
   try {
     const { color, initData } = req.body;
-    console.log(`🎨 Received color via POST: ${color}`);
-    console.log(`🎨 InitData: ${initData}`);
+    
+    logger.info({
+      endpoint: '/send-color',
+      color,
+      method: 'POST'
+    }, 'Received color via POST');
     
     // For now, just store it temporarily (we'll handle it better later)
     // Send success response
     res.json({ success: true, color });
   } catch (error) {
-    console.error("Error in /send-color:", error);
+    logError(error, {
+      endpoint: '/send-color',
+      method: 'POST'
+    });
     res.status(500).json({ success: false, error: String(error) });
   }
 });
@@ -229,8 +240,8 @@ app.get("/picker", (req, res) => {
         
         <div class="camera-section">
             <button class="camera-button" id="cameraBtn">📷 Захват цвета с камеры</button>
-            <button class="camera-button" id="captureBtn" style="display: none;">✓ Capture Color</button>
-            <button class="camera-button" id="closeCameraBtn" style="display: none; background: #e74c3c;">✕ Close Camera</button>
+            <button class="camera-button" id="captureBtn" style="display: none;">✓ Захват цвета</button>
+            <button class="camera-button" id="closeCameraBtn" style="display: none; background: #e74c3c;">✕ Закрыть камеру</button>
         </div>
         
         <div id="video-container">
@@ -398,8 +409,10 @@ app.get("/picker", (req, res) => {
 export function startWebApp() {
   return new Promise<void>((resolve) => {
     app.listen(PORT, () => {
-      console.log(`🌐 Web app server running on port ${PORT}`);
-      console.log(`📱 Color picker URL: http://localhost:${PORT}/picker`);
+      logger.info({
+        port: PORT,
+        pickerUrl: `http://localhost:${PORT}/picker`
+      }, 'Web app server started');
       resolve();
     });
   });
