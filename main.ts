@@ -11,14 +11,25 @@ const logger = createLogger('bot');
 // Initialize the bot with token from environment variable
 const bot = new Bot(config.botToken);
 
-// Command: /start - Welcome message
+// Command: /start - Welcome message with persistent color picker button
 bot.command("start", (context) => {
-  return context.send(
-    _.welcomeMessage
-  );
+  return context.send(_.welcomeMessage, {
+    reply_markup: {
+      keyboard: [
+        [
+          {
+            text: _.colorPickerButton,
+            web_app: { url: `${config.webAppUrl}/picker` }
+          }
+        ]
+      ],
+      resize_keyboard: true,
+      is_persistent: true
+    }
+  });
 });
 
-// Command: /pick - Show persistent color picker button
+// Optional: Keep /pick command for users who hide keyboard
 bot.command("pick", (context) => {
   logger.info({
     command: '/pick',
@@ -45,14 +56,25 @@ bot.command("pick", (context) => {
 
 // Handle web app data (gramio has a specific context for this!)
 bot.on("web_app_data", async (context) => {
+  // Access the color data directly from context (gramio puts it at context.data)
   const color = (context as any).data;
   
   logger.info({
     event: 'web_app_data',
     color,
+    buttonText: (context as any).buttonText,
     userId: (context as any).from?.id,
     username: (context as any).from?.username
   }, 'Web app data received');
+
+  // Validate that we have color data
+  if (!color) {
+    logger.error({
+      event: 'web_app_data',
+      error: 'No color data received'
+    }, 'Missing color data from web app');
+    return context.send("❌ Ошибка: не получены данные о цвете");
+  }
 
   try {
     logger.info({
@@ -183,19 +205,9 @@ async function start() {
     // Start web app server first
     await startWebApp();
     
-    // Set the menu button for the bot (appears next to input field)
-    try {
-      await bot.api.setChatMenuButton({
-        menu_button: {
-          type: 'web_app',
-          text: '🎨 Выбрать цвет',
-          web_app: { url: `${config.webAppUrl}/picker` }
-        }
-      });
-      logger.info('Menu button set successfully');
-    } catch (error) {
-      logError(error, { action: 'set_menu_button' });
-    }
+    // Note: Menu button is NOT used because it doesn't support sendData()
+    // Web Apps must be launched via keyboard button for sendData() to work
+    // Users need to use /pick command to get the keyboard button
     
     // Then start the bot
     logger.info('Starting bot...');
