@@ -1,0 +1,34 @@
+{
+  "name": "colorbot",
+  "version": "1.0.0",
+  "description": "A Telegram bot for generating color schemes",
+  "main": "dist/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx main.ts",
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "color",
+    "colors"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "@types/express": "^5.0.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "gramio": "^0.4.11",
+    "sharp": "^0.34.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.0.0"
+  }
+}
