@@ -1,9 +1,9 @@
 import { Bot } from "gramio";
-import { config } from "./config";
-import { startWebApp } from "./picker";
-import { _ } from "./txt";
-import { squares } from "./color-squares";
-import { createLogger, logError } from "./logger";
+import { config } from "./config.js";
+import { startWebApp } from "./picker.js";
+import { _ } from "./txt.js";
+import { squares } from "./color-squares.js";
+import { createLogger, logError } from "./logger.js";
 
 // Initialize logger for this module
 const logger = createLogger('bot');

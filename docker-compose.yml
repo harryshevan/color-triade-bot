@@ -1,0 +1,59 @@
+services:
+  colorbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: colorbot
+    restart: unless-stopped
+    ports:
+      - "${WEB_APP_PORT:-3000}:3000"
+    environment:
+      # Environment variables for the bot
+      # In production, you should use .env file or pass these securely
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEB_APP_PORT=${WEB_APP_PORT:-3000}
+      - WEB_APP_URL=${WEB_APP_URL}
+      - NODE_ENV=production
+    # Mount .env file for dotenvx to read
+    # Make sure to create .env file before running
+    volumes:
+      - ./.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health", "--timeout=5"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Uncomment if you need to limit resources
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # Optional: Add a development service for local development with hot reload
+  colorbot-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dependencies
+    container_name: colorbot-dev
+    profiles:
+      - dev
+    ports:
+      - "${WEB_APP_PORT:-3000}:3000"
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEB_APP_PORT=${WEB_APP_PORT:-3000}
+      - WEB_APP_URL=${WEB_APP_URL}
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./.env:/app/.env:ro
+    command: dotenvx run -- pnpm dev
+

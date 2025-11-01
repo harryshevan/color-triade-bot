@@ -1,6 +1,6 @@
 import { MediaUpload } from "gramio";
 import sharp from "sharp";
-import { colorflow } from "./colorflow-node";
+import { colorflow } from "./colorflow-node.js";
 
 /**
  * Generates multiple PNG images with 3-color combinations for wardrobe

@@ -1,6 +1,6 @@
 import express, { Express } from "express";
-import { config } from "./config";
-import { createLogger, logError } from "./logger";
+import { config } from "./config.js";
+import { createLogger, logError } from "./logger.js";
 
 // Initialize logger for this module
 const logger = createLogger('webapp');
@@ -11,6 +11,11 @@ const PORT = config.webAppPort || 3000;
 
 // Serve static files (if needed)
 app.use(express.json());
+
+// Health check endpoint for Docker
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
 
 // Endpoint to receive color from web app
 app.post("/send-color", async (req, res) => {
