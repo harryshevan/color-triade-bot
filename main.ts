@@ -183,6 +183,20 @@ async function start() {
     // Start web app server first
     await startWebApp();
     
+    // Set the menu button for the bot (appears next to input field)
+    try {
+      await bot.api.setChatMenuButton({
+        menu_button: {
+          type: 'web_app',
+          text: '🎨 Выбрать цвет',
+          web_app: { url: `${config.webAppUrl}/picker` }
+        }
+      });
+      logger.info('Menu button set successfully');
+    } catch (error) {
+      logError(error, { action: 'set_menu_button' });
+    }
+    
     // Then start the bot
     logger.info('Starting bot...');
     bot.start();
